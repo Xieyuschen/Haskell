@@ -83,7 +83,7 @@ ghci> reverse [1,2]
 ```
 - take 返回前几个元素，参数列表为 take index list
 ```
-ghvi> take 3 [6,5,4,3,2]
+ghci> take 3 [6,5,4,3,2]
 [6,5,4]
 ```
 若take的索引超过列表数目，则返回原列表。

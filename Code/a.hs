@@ -1,6 +1,4 @@
-quickSort::(Ord a)=>[a]->[a]
-quickSort []=[]
-quickSort (x:xs)
- let smallpart=quickSort [a|a<-xs,a<=x]
-     bigpart=quc [a|a<-xs,a>x]
- in smallpart++[x]++bigpart
+f::(Num a)=>a->a
+g::(Num a)=>a->a
+f x=x^3
+g x=x^2 +2*x
