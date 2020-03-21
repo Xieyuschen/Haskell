@@ -88,3 +88,46 @@ Ok, one module loaded.
 *Shapes> surface a
 28.274334
 ```
+
+## Record Syntax
+简单而言就是给自定义的类型都起上名字，方便使用
+```Haskell
+data Person=Person{
+    firstName::String,
+    lastName::String,
+    age::Int,
+    hetght::Float,
+    phoneNumber::String
+}deriving(Show)
+
+--对自定义的类初始化
+Person{firstName="Xie",lastName="Yuchen",age=20,hetght=1.8,phoneNumber="xxx"}
+```
+起个名字，那么在使用的时候就会很方便.
+
+## Type parameters
+类型构造子可以取类型做参数，产生新的类型。与C++的模板有相似的地方，但有一些不一样的地方。
+
+### 一个简单的Demo
+```Haskell
+--此处的a为类型参数
+data Maybe a =Nothing|Just a
+
+ghci>:t Just "haha"
+Just "haha"::Maybe [Char]
+ghci>:t Just 84
+Just 84::(Num t)=>Maybe t
+ghci>:t Nothing
+Nothing::Maybe a
+```
+以上的例子说明了类型构造的用法，根据提供给它的值来自动确定该为什么类型，也即不需要显式的指定类型，只用把对应类型的值给出就可以了，它可以自动推断出来。
+
+### 特别的Nothing
+Nothing的类型是`Maybe a`，也就是说我不知道它的具体类型。这个类型是多态的，如果有`Maybe Int`类型的，就可以传递给他一个Nothing，因为Nothing里面不包含任何值。`Maybe a`类型可以有`Maybe Int`的行为，也可以是`Maybe String`的行为。
+- List的额外理解
+list的`[]`就是一个`Nothing`,不需要指定类型，所以他可以对所有的list进行操作。比如说：  
+```Haskell
+[1,2,3]++[]
+"hello"++[]
+```
+以上的代码都是正确的，这要取决于`[]`具有多态性。
