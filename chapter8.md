@@ -131,3 +131,22 @@ list的`[]`就是一个`Nothing`,不需要指定类型，所以他可以对所�
 "hello"++[]
 ```
 以上的代码都是正确的，这要取决于`[]`具有多态性。
+
+## Derived instances
+### `类型类`与C++等语言中`类`的区别
+- 类：类像是蓝图，可以根据它来创建对象，保存状态并执行操作。
+- 类型类：更像是界面，**不是靠它构造数据，而是给既有的数据描述行为**。
+
+### 使用`deriving`关键字生成类型类`Eq`的`instance`
+```Haskell
+data Person=Person{
+    firstName::String,
+    lastName::String,
+    age::Int
+}deriving(Eq)
+```
+如上代码，Person类型derive了Eq的instance，就可以直接使用`==`,`/=`来判断他们的相等性了。首先检查两个值的值构造子是否一致，在检查其中的所有数据（都必须是Eq的成员）。
+
+## Type synonyms
+使用`type`关键字给一个类型起一个别名。  
+`type String = [Char]`  
