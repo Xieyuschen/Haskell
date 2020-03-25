@@ -150,3 +150,83 @@ data Person=Person{
 ## Type synonyms
 使用`type`关键字给一个类型起一个别名。  
 `type String = [Char]`  
+
+## Recursive data structure
+### 构造一棵Binary Search Tree
+```Haskell
+data Tree a=EmptyTree|Node a (Tree a) (Tree a) deriving(Eq,Read,Show)
+singleton::a->Tree a
+singleton x =Node x EmptyTree EmptyTree
+
+--不在原有的树上进行操作，而是重新创建了一棵新树
+treeInsert::(Ord a)->Tree a->Tree a
+treeInsert x EmptyTree=singleton x
+treeInsert x (Node a left right)
+--相等就不需要加了，直接返回原树即可
+    |x==a =Node x left right
+    |x<a =Node a (treeInsert x left) right
+    |x>a =Node a left (treeInsert x right)
+
+treeElem::(Ord a)=>a->Tree a->Bool
+treeElem x EmptyTree=False
+treeElem x (Node a left right)
+    |x==a = True
+    |x<a =treeElem x left
+    |x>a =treeElem x right
+
+```
+
+## 再叙`Typeclass`
+Typeclass和Java或Python里面的class一点关系都没有。  
+Typeclass 就像一个interface，一个typeclass定义了一些行为（比如说比较相不相等，比较大小顺序能否穷举）。而我们会把希望满足这些性质的类型定义成这些typeclass的instance。简单而言，**instance简单来说就是实现某个Typeclass的类型**。
+
+### instance 关键字
+instance关键字用来说明我们要定义某个typeclass得instance。
+#### 创建Eq的instance
+```Haskell
+data TrafficLight =Red|Yellow|Green
+instance Eq TrafficLight where
+    Red == Red =True
+    Yellow == Yellow =True
+    Green == Green =True
+    _ == _ =False
+
+*Main> Red == Red
+True
+*Main> Green == Red
+False
+```
+
+#### 创建Show的instance
+```Haskell
+--如果简单的derive来自动生成Eq的话，效果是一样的，但是derive生成的show会把值构造子转换为字符串。
+data TrafficLight =Red|Yellow|Green
+instance Show TrafficLight where
+    show Red = "Red light"
+    show Green = "Green light"
+    show Yellow = "Yellow light"
+
+*Main> Red
+Red light
+*Main> Green
+Green light
+```
+
+## yes-no typeclass
+在弱类型程序语言中可以在if语句中摆上任何东西。
+```Haskell
+class YesNo a where
+    yesno::a->Bool
+instance YesNo Int where
+    yesno 0 = False
+    yesno _ = True
+
+*Main> yesno $ length []
+False
+```
+
+## Funcroe typeclass
+一个重要的typeclass，叫做`Functor`。基本可以代表被map over的事物。  
+list就属于Functor这个typeclass。  
+
+[注]：剩下的两小节，p161~170，以后再来看一看。
