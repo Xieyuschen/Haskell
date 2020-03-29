@@ -1,6 +1,3 @@
-import System.IO 
-main = do
-    handle<-openFile "1.txt" ReadMode
-    contents<-hGetContents handle
-    putStr contents
-    hClose handle
+instance Functor Maybe where
+    fmap f (Just x) =Just (f x)
+    fmap f Nothing = Nothing
