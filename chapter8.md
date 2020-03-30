@@ -108,7 +108,8 @@ Person{firstName="Xie",lastName="Yuchen",age=20,hetght=1.8,phoneNumber="xxx"}
 ## Type parameters
 类型构造子可以取类型做参数，产生新的类型。与C++的模板有相似的地方，但有一些不一样的地方。
 
-### 一个简单的Demo
+### Maybe 类型
+**这个类型很重要，以后经常碰到它，记住啦！**。
 ```Haskell
 --此处的a为类型参数
 data Maybe a =Nothing|Just a

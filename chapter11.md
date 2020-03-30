@@ -63,3 +63,91 @@ D-L-R-O-W- -O-L-L-E-H
 ghci>fmap (*3) (+100) 1
 300
 ```
+
+# Applicative functors
+这个东西是加强版的functors，是`Control.Applicative`中的Applicative这个typeclass定义的。  
+也即这是另外一个typeclass。
+## 一些比较厉害的操作：
+- 之前的functor用的是一个kind为`*->*`，比如说我要比较一个list和一个给定list的值的大小
+```Haskell
+--比较一个字符串和9的大小关系
+fmap (compare 9) [3,4,2,1]
+```
+- 那么问题来了，如果我想把9这个数字变一下，或者说可以指定，那咋办呢？
+```Haskell
+let a = fmap (compare) [2,3,4,5]
+fmap (\f= f 9) a
+
+--进行一个list的加法：
+let b = fmap (*) [1,2,3,4]
+fmap (\f = f 9) b
+--output
+[9,18,27,36]
+```
+
+- 嗯，上面这些操作的类型是什么呢？使用`:t`来检测一下：
+```Haskell
+ghci> let a = fmap (*) [1,2,3,4]
+ghci> :t a
+a::[Integer->Integer]
+```
+
+### functor的麻烦：
+大写的Functor是类型，而小写的functor表明Functor的一个instance。
+**无法用fmap来吧包在一个functor的函数map令一个包在functor中的值**。只允许map一个普通的函数。
+
+## classtype Applicative
+### Applicative 的定义：
+```Haskell
+class (Functor f)=>Applicative f where
+    pure::a-> f a
+    (<*>)::f (a->b)->f a->f b
+```
+- 一个类型构造子f要是Applicative，必须也是Functor，所以这个类型可以使用fmap。
+- pure的类型声明`pure::a->f a`。接受一个值，并返回一个applicative functor，里面装有结果。
+- `<*>`这个类型，`<*>::f (a->b)->f a->f b`。  
+与fmap的相似：`fmap::f (a->b)->f a->f b`.  
+fmap 接受一个函数跟一个functor，然后套用functor之中的函数，`<*>`接受一个**装有函数的functor**跟令一个functor，然后取出第一个functor中的函数将他的第二个functor中得知做map。
+==>上面这段话有点费解，functor中的值和函数是什么东西？functor是一个instance，所以说functor里面的值就是它的数据成员，函数就是他自己的成员函数嘛？
+——好像并不是这样，有待进一步了解。
+
+### Maybe 的 Applicative实现
+```Haskell
+--类型Maybe:
+data Maybe a =Nothing|Just a
+
+instance Applicative Maybe where
+--Just是一个函数，pure接受一个东西然后包装成applicative functor
+    pure = Just
+    
+    --无法从Nothing中取出一个函数，所以说从Nothing中取出一个函数的结果必定是Nothing
+    Nothing <*> _ = Nothing
+    --从just中抽出函数f来map右边的值
+    (Just f)<*> something = fmap f something
+```
+
+### 使用：
+```Haskell
+ghci>Just (+3) <*> Just 9
+Just 12
+ghci>pure (+3) <*> Just 10
+Just 13
+ghci>pure (+3) <*> Just 9
+Just 12
+ghci>Just (+3) <*> Nothing
+Nothing
+ghci>Nothing <*> Just 3
+Nothing
+```
+嗯这段代码比较有特点，首先关注类型Meybe，Meybe里面有一个类型是`Just a`，也就是说**just是一个函数，接受一个值然后返回一个Maybe类型**。  
+看这里的使用，首先一个functor： Just +3对另外一个functor进行运算。  
+
+#### 迷惑的课文
+对于普通的functor，可以用一个函数map over一个functors，但我*可能没法拿到结果*（???为什么我拿不到结果呀）。而applicative functors可以**用一个单一的函数操作好几个functors**(???tm在说什么).  
+一个Demo：
+```Haskell
+ghci> pure (+) <*> Just 3 <*> Just 5
+Just 8
+ghci> pure (+) <*> Just 3 <*> Nothing
+Nothing
+```
