@@ -111,6 +111,19 @@ fmap 接受一个函数跟一个functor，然后套用functor之中的函数，`
 ==>上面这段话有点费解，functor中的值和函数是什么东西？functor是一个instance，所以说functor里面的值就是它的数据成员，函数就是他自己的成员函数嘛？
 ——好像并不是这样，有待进一步了解。
 
+### 使用Applicative的实例：
+嗯我觉得应该先把这个东西怎么用拉出来用一用，再把原理和运行方式讲一下。先看概念自己看有点难顶。   
+
+```Haskell
+Prelude> [(+0),(+100),(^2)] <*> [1,2,3]
+[1,2,3,101,102,103,1,4,9]
+Prelude> [(+),(*)] <*> [1,2] <*>  [3,4]
+[4,5,5,6,3,4,6,8]
+
+--list comprehension 的另一种表示方法
+Prelude> (*) <$> [1,2,3] <*> [1,2,3]
+[1,2,3,2,4,6,3,6,9]
+```
 ### Maybe 的 Applicative实现
 ```Haskell
 --类型Maybe:
@@ -126,7 +139,7 @@ instance Applicative Maybe where
     (Just f)<*> something = fmap f something
 ```
 
-### 使用：
+### <*>的简单使用：
 ```Haskell
 ghci>Just (+3) <*> Just 9
 Just 12
@@ -142,8 +155,6 @@ Nothing
 嗯这段代码比较有特点，首先关注类型Meybe，Meybe里面有一个类型是`Just a`，也就是说**just是一个函数，接受一个值然后返回一个Maybe类型**。  
 看这里的使用，首先一个functor： Just +3对另外一个functor进行运算。  
 
-#### 迷惑的课文
-对于普通的functor，可以用一个函数map over一个functors，但我*可能没法拿到结果*（???为什么我拿不到结果呀）。而applicative functors可以**用一个单一的函数操作好几个functors**(???tm在说什么).  
 一个Demo：
 ```Haskell
 ghci> pure (+) <*> Just 3 <*> Just 5
@@ -151,3 +162,41 @@ Just 8
 ghci> pure (+) <*> Just 3 <*> Nothing
 Nothing
 ```
+- pure是一个left-associative，左结合。首先+是摆在一个functor中，在这边刚好他是一个Maybe，pure (+)<=>Just (+)。 Just (+) <*> Just 3的结果我 Just (3+).最后 Just (3+)与Just 5运算得到just 8.
+
+
+### 函数<$>
+```Haskell
+(<$>)::(Functor f)=>(a->b)->f a->f b
+f <$> x = fmap f x
+```
+#### 一个<$>的小例子：
+```Haskell
+ghci> (++) <$> Just "hello" <*> Just "world"
+Just "helloworld"
+```
+首先将++mapover到Just "hello",然后产生Just ("hello"++),然后再进行后续运算。
+
+### liftA2的使用：
+`listA2`函数在`Control.Applicative`中被定义。
+```Haskell
+liftA2::(Applicative f)=>(a->b->c)->f a->f b->f c
+liftA2 f a b = f <$> a <*> b
+```
+那么希望Just中的值为一个list：
+```Haskell
+ghci> fmap (\x -> [x]) (Just 4)
+Just [4]
+--希望获得Just [3,4]
+ghci> liftA2 (:) (Just 3) (Just 4)
+Just [3,4]
+```
+### 自定义一个函数实现上面liftA2的功能、
+```Haskell
+--因为Applicative f 的相关操作已经被定义好了，所以此处就可以这么用了
+sequanceA::(Applicative f)=> [f a]->f [a]
+sequanceA []=pure []
+--递回它不香嘛(/doge)
+sequance (x:xs)= (:) <$> x <*> sequenceA xs
+```
+
