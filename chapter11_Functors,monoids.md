@@ -223,4 +223,12 @@ sequance (x:xs)= (:) <$> x <*> sequenceA xs
 ```
 
 # newtype
-学习newtype从一个现有的类型定义出新的类型。
+学习newtype从一个现有的类型定义出新的类型。  
+<img src="./Images/13.jpg" width = "300" height = "400" alt="图片名称"/>
+
+
+# Monoid
+<img src="./Images/11.jpg" width = "300" height = "400" alt="图片名称"/>
+<img src="./Images/12.jpg" width = "300" height = "400" alt="图片名称"/>
+<img src="./Images/14.jpg" width = "300" height = "400" alt="图片名称"/>
+
