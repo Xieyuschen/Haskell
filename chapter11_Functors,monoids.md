@@ -184,6 +184,21 @@ Just "helloworld"
 ```
 首先将++mapover到Just "hello",然后产生Just ("hello"++),然后再进行后续运算。
 
+### ZipList的定义：
+对于一个平常的Applicative，`[(+1),(+2)] <*> [1,4]`的结果为：`[2,5,3,6]`。  
+如果我想让第一个函数对第一个值进行操作，第二个函数对应第二个以此类推像拉链一样，要怎么办呢？现在我们给出一个ZipList来学习。
+```Haskell
+instance Applicative ZipList where
+    pure x =ZipList (repeat x)
+    --f是在运行的时候传进来的
+    ZipList fs <*> ZipList xs = ZipList (zipWith (\f x->f x) fs xs)
+```
+- 给个Demo体会一下：
+```Haskell
+ghci> getZipList $ (+) <$> ZipList [1,2,3] <*> ZipList [100,100,100]
+[101,102,103]
+
+```
 ### liftA2的使用：
 `listA2`函数在`Control.Applicative`中被定义。
 ```Haskell
